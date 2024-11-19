@@ -30,8 +30,8 @@ function App() {
     const arr = Object.values(items)
     if (arr.length < 2) return undefined
     const sum = arr.map((item) =>
-      !Number.isNaN(+item.price)
-        ? ((item.unit || 1) * (item.size || 0)) / item.price
+      !Number.isNaN(+item.price) && +item.price
+        ? ((item?.unit || 1) * (item?.size || 0)) / item.price
         : 0,
     )
     if (!sum[0] || !sum[1]) return undefined
@@ -67,7 +67,7 @@ function App() {
               setItems(initialItems)
             }}
           >
-            คืนค่าเริ่มต้น
+            ล้างทั้งหมด
           </Button>
         </HStack>
         <Table.Root stickyHeader>
@@ -77,29 +77,29 @@ function App() {
               backdropFilter='blur(20px)'
               _dark={{ backgroundColor: 'blackAlpha.300' }}
             >
-              <Table.ColumnHeader>จำนวน</Table.ColumnHeader>
+              <Table.ColumnHeader width='1%' whiteSpace='nowrap'>
+                จำนวน
+              </Table.ColumnHeader>
               <Table.ColumnHeader>ขนาด</Table.ColumnHeader>
               <Table.ColumnHeader>ราคา</Table.ColumnHeader>
               <Table.ColumnHeader />
             </Table.Row>
           </Table.Header>
           <Table.Body colorPalette='blue'>
-            {Object.entries(items).map(([, item], index) => (
+            {Object.entries(items).map(([key, item], index) => (
               <Table.Row
-                key={index}
+                key={key}
                 aria-current={index === cheapestIndex ? 'page' : undefined}
                 _currentPage={{ backgroundColor: 'green.emphasized' }}
               >
-                <Table.Cell>
+                <Table.Cell width='1%' whiteSpace='nowrap'>
                   <NumberInput.Root
                     variant='subtle'
                     min={0}
                     step={1}
                     inputMode='numeric'
                     value={
-                      typeof item.unit === 'undefined'
-                        ? item.unit
-                        : `${item.unit}`
+                      typeof item.unit === 'undefined' ? '' : `${item.unit}`
                     }
                     onValueChange={(e) => {
                       setItems((curr) => {
@@ -114,7 +114,11 @@ function App() {
                       })
                     }}
                   >
-                    <NumberInput.Input maxWidth='6ch' placeholder='1' />
+                    <NumberInput.Input
+                      width='5ch'
+                      placeholder='1'
+                      fontSize='md'
+                    />
                   </NumberInput.Root>
                 </Table.Cell>
                 <Table.Cell>
@@ -122,9 +126,7 @@ function App() {
                     variant='subtle'
                     min={0}
                     value={
-                      typeof item.size === 'undefined'
-                        ? item.size
-                        : `${item.size}`
+                      typeof item.size === 'undefined' ? '' : `${item.size}`
                     }
                     onValueChange={(e) => {
                       setItems((curr) => {
@@ -139,7 +141,7 @@ function App() {
                       })
                     }}
                   >
-                    <NumberInput.Input maxWidth='100px' />
+                    <NumberInput.Input fontSize='md' />
                   </NumberInput.Root>
                 </Table.Cell>
                 <Table.Cell>
@@ -169,25 +171,34 @@ function App() {
                       })
                     }}
                   >
-                    <NumberInput.Input maxWidth='100px' />
+                    <NumberInput.Input
+                      fontSize='md'
+                      onFocus={(e) => e.target.select()}
+                    />
                   </NumberInput.Root>
                 </Table.Cell>
                 <Table.Cell>
                   {typeof cheapestIndex === 'number' &&
-                    cheapestIndex !== index && (
+                    cheapestIndex !== index &&
+                    !!item.size &&
+                    !!item.price && (
                       <Stat.Root colorPalette='red'>
                         <Badge maxWidth='fit-content'>
                           <Stat.UpIndicator color='colorPalette.solid' />
                           <FormatNumber
                             value={
-                              ((items[cheapestIndex].unit || 1) *
-                                (items[cheapestIndex].size || 0)) /
-                                items[cheapestIndex].price /
-                                (((item.unit || 1) * (item.size || 0)) /
-                                  item.price) -
-                              1
+                              item.price
+                                ? ((items[cheapestIndex]?.unit || 1) *
+                                    (items[cheapestIndex]?.size || 0)) /
+                                    items[cheapestIndex]?.price /
+                                    (((item.unit || 1) * (item.size || 0)) /
+                                      item.price) -
+                                  1
+                                : 0
                             }
                             style='percent'
+                            notation='compact'
+                            maximumFractionDigits={2}
                           />
                         </Badge>
                       </Stat.Root>
