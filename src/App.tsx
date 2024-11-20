@@ -11,9 +11,10 @@ import {
   Table,
 } from '@chakra-ui/react'
 import { useMemo, useState } from 'react'
-
-import { ColorModeButton } from './components/ui/color-mode'
 import { LuPlus } from 'react-icons/lu'
+
+import { Calculator } from '@/components/Calculator'
+import { ColorModeButton } from '@/components/ui/color-mode'
 
 interface Item {
   unit?: number
@@ -24,6 +25,7 @@ interface Item {
 const initialItems: Record<number, Item> = { 0: { price: 0 }, 1: { price: 0 } }
 
 function App() {
+  const [openCalculator, setOpenCalculator] = useState(false)
   const [items, setItems] = useState(initialItems)
 
   const cheapestIndex = useMemo(() => {
@@ -59,6 +61,13 @@ function App() {
       </Box>
       <Container maxWidth='breakpoint-md'>
         <HStack mt={4}>
+          <Button
+            onClick={() => {
+              setOpenCalculator(true)
+            }}
+          >
+            Calculator
+          </Button>
           <Box flexGrow={1} />
           <Button
             colorPalette='blue'
@@ -223,6 +232,8 @@ function App() {
           <LuPlus /> เพิ่มชิ้น
         </Button>
       </Container>
+
+      <Calculator open={openCalculator} onOpenChange={setOpenCalculator} />
     </>
   )
 }
